@@ -6,6 +6,7 @@ https://docs.google.com/document/d/19oX2cgOgHJJUakujflavoMcYnCBVIXrBk3PaOoyqP6k/
 
 ## Relational
 ### Function Diagram
+![function diagram](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/ds551.png)
 https://1drv.ms/u/s!AhfT-JkcYBnml3jXaKHAECIvk3xX?e=exyYEb
 
 ### Dataset
