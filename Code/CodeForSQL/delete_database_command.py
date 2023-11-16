@@ -5,9 +5,9 @@ import shutil
 def execute_delete_command(handler, command):
     # Parse the command to extract the database name
     tokens = command.split()
-    # Assuming the format is "Delete database [database_name];"
+    # The format is "Delete database [database_name];"
     if len(tokens) == 3 and tokens[0].lower() == "delete" and tokens[1].lower() == "database":
-        db_name = tokens[2]
+        db_name = tokens[2].lower()
         delete_database(handler, db_name)
     else:
         print("Invalid delete command.")
