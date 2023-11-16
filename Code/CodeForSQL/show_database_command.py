@@ -2,7 +2,7 @@ import os
 
 
 def execute_databases_command(handler, command):
-    # Assuming the command is simply "databases;"
+    # The command is simply "databases;"
     if command.lower() == "databases":
         show_databases(handler)
     else:
