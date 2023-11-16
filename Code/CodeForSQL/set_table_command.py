@@ -3,12 +3,21 @@ import csv
 
 
 def execute_set_command(handler, command):
-    # Parse the command to extract table name and column definitions
-    tokens = command.split()
-    # Assuming the format is "Set up a new table named [table_name] with columns [column_definitions]"
-    if len(tokens) >= 10 and " ".join(tokens[:6]).lower() == "set up a new table named" and tokens[8].lower() == "columns":
-        table_name = tokens[6].lower()
-        columns = [token.strip(",").lower() for token in tokens[9:]]
+    # Split the command into two parts: table name and column definitions
+    parts = command.split(" with columns ")
+    if len(parts) != 2:
+        print("Invalid set table command format.")
+        return
+
+    # Extract table name and column definitions
+    table_name_part = parts[0].split()
+    column_definitions_part = parts[1]
+
+    # The format is "Set up a new table named [table_name] with columns [column_definitions]"
+    if len(table_name_part) >= 7 and " ".join(table_name_part[:6]).lower() == "set up a new table named":
+        table_name = table_name_part[6].strip().strip(";").lower()
+        # Process column definitions
+        columns = [col.strip().strip(",").lower() for col in column_definitions_part.split(",")]
         set_table(handler, table_name, columns)
     else:
         print("Invalid set table command.")
