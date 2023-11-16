@@ -29,12 +29,21 @@ class SQLHandler:
         command_modules = {
             'create': 'create_database_command',
             'switch': 'switch_database_command',
+            'delete': 'delete_database_command',
+            'databases': 'show_database_command',
+
             'set': 'set_table_command',
             'drop': 'drop_table_command',
-            'delete': 'delete_database_command',
             'tables': 'show_table_command',
-            'databases': 'show_database_command'
-            # ... (other command keywords to module name mappings)
+
+            'add': 'add_command',
+            'remove': 'remove_command',
+            'change': 'change_command',
+
+            'show': 'show_command',
+            'connect': 'connect_command',
+            'summarize': 'summarize_command',
+            'sort': 'sort_command'
         }
 
         keyword = words[0].lower()
