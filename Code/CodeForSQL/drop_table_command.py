@@ -4,7 +4,7 @@ import os
 def execute_drop_command(handler, command):
     # Parse the command to extract the table name
     tokens = command.split()
-    # Assuming the format is "Drop table [table_name];"
+    # The format is "Drop table [table_name];"
     if len(tokens) == 3 and tokens[0].lower() == "drop" and tokens[1].lower() == "table":
         table_name = tokens[2].lower()
         drop_table(handler, table_name)
