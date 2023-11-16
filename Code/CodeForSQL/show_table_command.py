@@ -2,7 +2,7 @@ import os
 
 
 def execute_tables_command(handler, command):
-    # Assuming the command is simply "tables;"
+    # The command is simply "tables;"
     if command.lower() == "tables":
         show_tables(handler)
     else:
@@ -22,22 +22,31 @@ def show_tables(handler):
         # List all CSV files in the current database directory
         table_files = [file for file in os.listdir(handler.db_path) if file.endswith('.csv')]
         print_tables(table_files, database_name)
+
+        # List all CSV files in the [database_name]_running directory
+        running_path = os.path.join(handler.db_path, f"{database_name}_running")
+        if os.path.exists(running_path):
+            running_table_files = [file for file in os.listdir(running_path) if file.endswith('.csv')]
+            print_tables(running_table_files, f"{database_name}_running")
+        else:
+            print(f"No '{database_name}_running' directory found.")
+
     except Exception as e:
         print(f"An error occurred while listing the tables: {e}")
 
 
-def print_tables(tables, database_name):
-    # Print the header with the current database name
-    header = f"| Tables_in_{database_name}".ljust(22) + "|"
-    print("+----------------------+")
+def print_tables(tables, directory_name):
+    # Print the header with the directory name
+    header = f"| Tables_in_{directory_name}".ljust(30) + "|"
+    print("+------------------------------+")
     print(header)
-    print("+----------------------+")
+    print("+------------------------------+")
 
-    # Print each table name (without the .csv extension)
+    # Print each table name (without the '.csv' extension)
     for table in tables:
         table_name = table.rsplit('.', 1)[0]  # Remove the '.csv' extension
-        print(f"| {table_name.ljust(20)} |")
+        print(f"| {table_name.ljust(28)} |")
 
     # Print the footer
-    print("+----------------------+")
+    print("+------------------------------+")
     print(f"{len(tables)} rows in set\n")
