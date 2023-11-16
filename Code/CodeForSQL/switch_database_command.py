@@ -4,9 +4,9 @@ import os
 def execute_switch_command(handler, command):
     # Parse the command to extract the database name
     tokens = command.split()
-    # Assuming the format is "Switch to database [database_name];"
+    # The format is "Switch to database [database_name];"
     if len(tokens) == 4 and tokens[0].lower() == "switch" and tokens[1].lower() == "to" and tokens[2].lower() == "database":
-        db_name = tokens[3]
+        db_name = tokens[3].lower()
         switch_database(handler, db_name)
     else:
         print("Invalid switch command.")
