@@ -1,8 +1,6 @@
 import json
 import os
 import re
-import shutil
-import time
 
 class Database:
     def __init__(self, db_path):
@@ -45,7 +43,45 @@ class Database:
         else:
             raise ValueError("Unknown operation requested.")
         # Additional query types can be added here
-        
+    
+    def show_databases(self):
+        databases_path = os.path.join(self.db_path, "NoSQL_DB")
+        databases = [d for d in os.listdir(databases_path) 
+                     if os.path.isdir(os.path.join(databases_path, d))]
+
+        # Formatting and printing the databases in a table-like structure
+        print("+--------------------+")
+        print("| Database           |")
+        print("+--------------------+")
+
+        for db in databases:
+            print(f"| {db.ljust(18)} |")
+
+        print("+--------------------+")
+        print(f"{len(databases)} Database in set\n")
+    
+    def show_collections(self):
+        if self.current_database is None:
+            raise ValueError("No database selected.")
+
+        collections_path = os.path.join(self.db_path, "NoSQL_DB", self.current_database)
+        collections = [f for f in os.listdir(collections_path) 
+                       if os.path.isfile(os.path.join(collections_path, f)) 
+                       and f.endswith(".json")]
+
+        # Formatting and printing the collections in a table-like structure
+        header = f"| Collections_in_{self.current_database}".ljust(30) + "|"
+        print("+------------------------------+")
+        print(header)
+        print("+------------------------------+")
+
+        for collection in collections:
+            collection_name = collection.rsplit('.', 1)[0]  # Remove the '.json' extension
+            print(f"| {collection_name.ljust(28)} |")
+
+        print("+------------------------------+")
+        print(f"{len(collections)} collections in {self.current_database}\n")
+
     def create_database(self, database_name):
         # Create a new database (folder)
         db_path = os.path.join(self.db_path, database_name)
@@ -74,14 +110,18 @@ class Database:
             raise ValueError(f"Collection '{collection_name}' does not exist.")
         
     def drop_database(self, database_name):
-        """
-        Deletes an entire database (a directory and its contents).
-        :param database_name: The name of the database to be deleted.
-        """
         db_path = os.path.join(self.db_path, "NoSQL_DB", database_name)
 
         if os.path.exists(db_path):
-            shutil.rmtree(db_path)
+            # Recursively delete all files and subdirectories
+            for root, dirs, files in os.walk(db_path, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            # Delete the database directory itself
+            os.rmdir(db_path)
+
             return f"Database '{database_name}' has been deleted."
         else:
             raise ValueError(f"Database '{database_name}' does not exist.")
@@ -95,67 +135,85 @@ class Database:
             json.dump([], file)  # Create an empty JSON array
         return f"Collection '{collection_name}' created with fields {fields}."
     
-    def _matches_condition(self, json_object, fields, condition):
-        # Example condition format: "Age > 30"
-        pattern = r'(\w+) ([><=]) (.+)'
-        match = re.match(pattern, condition)
-        if not match:
-            raise ValueError("Invalid condition format.")
+    def _matches_condition(self, json_object, condition):
+        # Split the condition string into individual conditions
+        individual_conditions = condition.split(' and ')
 
-        field, operator, value = match.groups()
+        for cond in individual_conditions:
+            pattern = r'(\w+) ([><=]) (.+)'
+            match = re.match(pattern, cond.strip())
+            if not match:
+                raise ValueError("Invalid condition format.")
 
-        # Ensure the field is part of the projection
-        if field not in fields:
-            raise ValueError(f"Field '{field}' not found in the projection fields.")
+            field, operator, value = match.groups()
 
-        # Convert value to appropriate type
-        if field in json_object:
-            json_value = json_object[field]
-            if isinstance(json_value, int) or isinstance(json_value, float):
-                value = float(value)
-            elif isinstance(json_value, str):
-                value = str(value)
+            # Convert value to appropriate type and evaluate condition
+            if field in json_object:
+                json_value = json_object[field]
+                if isinstance(json_value, int) or isinstance(json_value, float):
+                    value = float(value)
+                elif isinstance(json_value, str):
+                    value = str(value)
+                else:
+                    continue  # Skip condition if the type is not supported
 
-            # Evaluate condition
-            if operator == '=' and json_value == value:
-                return True
-            elif operator == '>' and json_value > value:
-                return True
-            elif operator == '<' and json_value < value:
-                return True
+                # Evaluate the individual condition
+                if operator == '=' and json_value != value:
+                    return False
+                elif operator == '>' and json_value <= value:
+                    return False
+                elif operator == '<' and json_value >= value:
+                    return False
+            else:
+                return False  # Condition field not found in json_object
 
-        return False
+        return True  # All conditions are satisfied
     
     def _display_results(self, file_path):
-        # Read and display the results from the output file
-        results = []
-        for json_object in stream_read_json(file_path):
-            results.append(json_object)
-        return results
+        """
+        Streams the results from a file without loading the entire file into memory.
+        :param file_path: Path to the file containing the results.
+        """
+        for batch in stream_read_json(file_path, batch_size=1000):  # Adjust batch size as needed
+            for json_object in batch:
+                print(json_object)
     
-    def retrieve_data(self, collection_name, fields, condition):
+    # need modification: use field = all to get the entire object
+    def retrieve_data(self, collection_name, fields, condition, line_start, line_end):
         # Generating a descriptive file name for the query results
         fields_str = '_'.join(fields).replace(' ', '_')
         condition_str = condition.replace(' ', '_').replace('>', 'gt').replace('<', 'lt').replace('=', 'eq')
-        output_filename = f"{collection_name}_retrieve_data_{fields_str}_{condition_str}_running.json"
+        output_filename = f"{collection_name}_retrieve_data_{fields_str}_{condition_str}_line_{line_start}-{line_end}.json"
         output_path = os.path.join(self.db_path, "NoSQL_DB", self.current_database, "NoSQL_running", output_filename)
 
-        # Processing the query
+        # Processing the query with line range
         with open(output_path, 'w') as output_file:
             output_file.write('[')
             first_item_written = False
+            current_line = 1  # Line counter
+
             for json_object in stream_read_json(os.path.join(self.db_path, "NoSQL_DB", self.current_database, f"{collection_name}.json")):
-                if self._matches_condition(json_object, fields, condition):
-                    if first_item_written:
-                        output_file.write(',')
-                    else:
-                        first_item_written = True
-                    projected_json_object = {field: json_object[field] for field in fields}
-                    output_file.write(json.dumps(projected_json_object))
+                # Check if the current line is within the specified range
+                if line_start <= current_line < line_end:
+                    if self._matches_condition(json_object, condition):
+                        if first_item_written:
+                            output_file.write(',')
+                        else:
+                            first_item_written = True
+                        projected_json_object = {field: json_object[field] for field in fields}
+                        output_file.write(json.dumps(projected_json_object))
+
+                current_line += 1
+                if current_line >= line_end:
+                    break  # Stop processing once the end line is reached
+
             output_file.write(']')
 
         # Displaying the results
-        return self._display_results(output_path)
+        self._display_results(output_path)
+
+        # Clean up by removing the temporary output file
+        os.remove(output_path)
     
 
     def insert_data(self, collection_name, new_data):
@@ -220,7 +278,7 @@ class Database:
             write_file.write(']')
 
         # Replace the original collection file with the updated one
-        shutil.move(temp_path, collection_path)
+        os.rename(temp_path, collection_path)
 
         return "Data updated successfully."
 
@@ -251,15 +309,56 @@ class Database:
             temp_file.write(']')
 
         # Replace the original collection file with the updated one
-        shutil.move(temp_path, collection_path)
+        os.rename(temp_path, collection_path)
 
         return "Data deleted successfully."
     
 
-    def join(self, query_details):
-        # Logic for join operation
-        pass
+    def join(self, collection1_name, collection2_name, common_feature):
+        collection1_path = os.path.join(self.db_path, "NoSQL_DB", self.current_database, f"{collection1_name}.json")
+        collection2_path = os.path.join(self.db_path, "NoSQL_DB", self.current_database, f"{collection2_name}.json")
 
+        # Correctly parse common_feature
+        # Assuming common_feature formatted as "collection1.field1 = collection2.field2"
+        parts = common_feature.split('=')
+        field1 = parts[0].split('.')[-1].strip()
+        field2 = parts[1].split('.')[-1].strip()
+
+        # Creating a file name for the join results
+        output_filename = f"{collection1_name}_join_{collection2_name}.json"
+        output_path = os.path.join(self.db_path, "NoSQL_DB", self.current_database, "NoSQL_running", output_filename)
+
+        with open(output_path, 'w') as output_file:
+            output_file.write('[')
+            first_item_written = False
+
+            # Process collection1 in chunks
+            for batch1 in stream_read_json(collection1_path, batch_size=1000):
+                # Process collection2 in chunks for each batch1
+                for batch2 in stream_read_json(collection2_path, batch_size=1000):
+                    for obj1 in batch1:
+                        for obj2 in batch2:
+                            if obj1.get(field1) == obj2.get(field2):
+                                # Combine data from both objects, excluding duplicate field
+                                joined_obj = {**obj1, **{k: v for k, v in obj2.items() if k != field2}}
+                                
+                                if first_item_written:
+                                    output_file.write(',')
+                                else:
+                                    first_item_written = True
+                                output_file.write(json.dumps(joined_obj))
+
+            output_file.write(']')
+
+        # Displaying the results
+        self._display_results(output_path)
+
+        # Clean up by removing the temporary output file
+        os.remove(output_path)
+
+        return "Join operation completed."
+
+    # need modification: check to ensure numberic only: sum,average;  numberic/string: max, min, count;
     def grouping_aggregation(self, collection_name, group_by_field, aggregation_field, aggregation_method):
         """
         Groups data and performs aggregation on a specified field, including aggregating over all records.
@@ -308,10 +407,78 @@ class Database:
             detailed_results.append(result)
 
         return detailed_results
+    # need to check the size of chunk for stream_read_json in the below three functions
+    def sort_data(self, collection_name, sort_field, order):
+        if self.current_database is None:
+            raise ValueError("No database selected.")
 
-    def sort_data(self, query_details):
-        # Logic for ordering operation
-        pass
+        collection_path = os.path.join(self.db_path, "NoSQL_DB", self.current_database, f"{collection_name}.json")
+        
+        # Step 1: Divide and Sort Chunks
+        chunk_files = self._divide_and_sort_chunks(collection_path, sort_field, order)
+
+        # Step 2: Merge Sorted Chunks
+        sorted_file_path = self._merge_sorted_chunks(chunk_files, sort_field, order)
+
+        # Step 3: Stream and Display Results
+        self._display_results(sorted_file_path)
+
+        # Clean up the final sorted file
+        os.remove(sorted_file_path)
+    
+
+    def _divide_and_sort_chunks(self, collection_path, sort_field, order):
+        chunk_size = 100000  # Define chunk size based on memory constraints
+        chunk_files = []
+        reverse_order = (order == 'desc')
+        chunk_index = 0
+
+        for batch in stream_read_json(collection_path, batch_size=chunk_size):
+            batch.sort(key=lambda x: x.get(sort_field, None), reverse=reverse_order)
+
+            # Create a temporary file in the running folder
+            temp_chunk_file_path = os.path.join(
+                self.db_path, "NoSQL_DB", self.current_database, "DatabaseB_running", 
+                f"temp_chunk_{chunk_index}.json"
+            )
+            with open(temp_chunk_file_path, 'w') as temp_file:
+                json.dump(batch, temp_file)
+            chunk_files.append(temp_chunk_file_path)
+            chunk_index += 1
+
+        return chunk_files
+    
+    def _merge_sorted_chunks(self, chunk_files, sort_field, order):
+        sorted_file_path = "sorted_output.json"
+        reverse_order = (order == 'desc')
+
+        # Open all chunk files
+        chunk_file_handles = [open(fname, 'r') for fname in chunk_files]
+        chunk_data_pointers = [json.loads(f.readline()) for f in chunk_file_handles]
+
+        with open(sorted_file_path, 'w') as output_file:
+            while any(chunk_data_pointers):
+                # Find the next item to write to the merged file
+                next_item, next_index = None, None
+                for i, data in enumerate(chunk_data_pointers):
+                    if data is not None:
+                        if next_item is None or \
+                           (data[sort_field] < next_item[sort_field]) != reverse_order:
+                            next_item, next_index = data, i
+
+                if next_item is not None:
+                    output_file.write(json.dumps(next_item) + '\n')
+                    # Read the next item from the chunk that provided the last item
+                    next_line = chunk_file_handles[next_index].readline()
+                    chunk_data_pointers[next_index] = json.loads(next_line) if next_line else None
+
+        # Close and clean up chunk files
+        for f in chunk_file_handles:
+            f.close()
+        for fname in chunk_files:
+            os.remove(fname)
+
+        return sorted_file_path
 
     # Additional methods for insert, delete, update, etc. go here
 
@@ -319,34 +486,33 @@ class Database:
 class QueryParser:
     def parse(self, query_string):
         # Determine the type of query and call the respective method
-        if query_string.startswith('Create a new database named'):
+        if query_string.startswith('create a new database named'):
             return self.parse_create_database(query_string)
-        elif query_string.startswith('Switch to database'):
+        elif query_string.startswith('switch to database'):
             return self.parse_switch_database(query_string)
-        elif query_string.startswith('Set up a new collection'):
+        elif query_string.startswith('set up a new collection'):
             return self.parse_create_collection(query_string)
-        elif query_string.startswith('Show'):
-            if query_string.endswith('where'):
-                return self.parse_retrieve_data(query_string)
-            elif query_string == 'Tables' or query_string == 'Collections':
-                return {"operation": "show_collections"}
-            elif query_string == 'Databases':
-                return {"operation": "show_databases"}
-        elif query_string.startswith('Connect'):
+        elif query_string.startswith('show'):
+            return self.parse_retrieve_data(query_string)
+        elif query_string.startswith('collections'):
+            return {"operation": "show_collections"}
+        elif query_string.startswith('databases'):
+            return {"operation": "show_databases"}
+        elif query_string.startswith('connect'):
             return self.parse_join_collections(query_string)
-        elif query_string.startswith('Summarize'):
+        elif query_string.startswith('summarize'):
             return self.parse_grouping_aggregation(query_string)
-        elif query_string.startswith('Sort'):
+        elif query_string.startswith('sort'):
             return self.parse_sort_data(query_string)
-        elif query_string.startswith('Add'):
+        elif query_string.startswith('add'):
             return self.parse_insert_data(query_string)
-        elif query_string.startswith('Remove'):
+        elif query_string.startswith('remove'):
             return self.parse_delete_data(query_string)
-        elif query_string.startswith('Drop'):
+        elif query_string.startswith('drop'):
             return self.parse_drop_collection(query_string)
-        elif query_string.startswith('Change'):
+        elif query_string.startswith('change'):
             return self.parse_update_data(query_string)
-        elif query_string.startswith('Delete database'):
+        elif query_string.startswith('delete database'):
             return self.parse_drop_database(query_string)
         else:
             raise ValueError("Unknown query format.")
@@ -402,14 +568,23 @@ class QueryParser:
         return {"operation": "show_databases"}
 
     def parse_retrieve_data(self, query_string):
-        # Example: "Show names, ages of employees where age > 30"
-        pattern = r'Show (.+) of (.+) where (.+)'
+        # New pattern to include line range
+        pattern = r'Show (.+) of (.+) where (.+) line (\d+)-(\d+);'
         match = re.match(pattern, query_string)
         if match:
             fields = [field.strip() for field in match.group(1).split(',')]
-            collection = match.group(2)
-            condition = match.group(3)
-            return {"operation": "retrieve_data", "fields": fields, "collection": collection, "condition": condition}
+            collection = match.group(2).strip()
+            condition = match.group(3).strip()
+            line_start = int(match.group(4))
+            line_end = int(match.group(5))
+            return {
+                "operation": "retrieve_data", 
+                "fields": fields, 
+                "collection": collection, 
+                "condition": condition,
+                "line_start": line_start, 
+                "line_end": line_end
+            }
         else:
             raise ValueError("Invalid query format for retrieving data.")
         
