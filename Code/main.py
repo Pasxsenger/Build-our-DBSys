@@ -1,5 +1,5 @@
 from CodeForSQL.sql_handler import SQLHandler
-# from CodeForNoSQL.nosql_handler import NoSQLHandler
+from CodeForNoSQL.nosql_handler import NoSQLHandler
 
 
 def main():
@@ -15,8 +15,8 @@ def main():
             sql_handler.handle_commands()
         elif db_type.lower() == 'nosql':
             print("nosql")
-            # nosql_handler = NoSQLHandler()
-            # nosql_handler.handle_commands()
+            nosql_handler = NoSQLHandler()
+            nosql_handler.handle_commands()
         else:
             print("Invalid input. Please choose 'SQL' or 'NoSQL'.")
 

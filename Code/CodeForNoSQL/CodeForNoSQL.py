@@ -44,6 +44,37 @@ class Database:
             raise ValueError("Unknown operation requested.")
         # Additional query types can be added here
     
+    def stream_read_json(file_path, batch_size=1):
+        """
+        Generator function to read multiple JSON objects at a time from a file.
+        Each line in the file should be a separate JSON object.
+
+        :param file_path: Path to the JSON file.
+        :param batch_size: Number of JSON objects to read at a time.
+        """
+        with open(file_path, 'r') as file:
+            batch = []
+            for line in file:
+                batch.append(json.loads(line))
+                if len(batch) == batch_size:
+                    yield batch
+                    batch = []
+            if batch:  # Yield the last batch if it's not empty
+                yield batch
+
+
+    def stream_write_results(file_path, json_objects):
+        """
+        Function to write a batch of JSON objects to a file.
+
+        :param file_path: Path to the JSON file where data will be written.
+        :param json_objects: A list of JSON objects to write.
+        """
+        with open(file_path, 'a') as file:
+            # Writing each JSON object in the list to the file
+            for obj in json_objects:
+                file.write(json.dumps(obj) + '\n')
+
     def show_databases(self):
         databases_path = os.path.join(self.db_path, "NoSQL_DB")
         databases = [d for d in os.listdir(databases_path) 
@@ -86,6 +117,11 @@ class Database:
         # Create a new database (folder)
         db_path = os.path.join(self.db_path, database_name)
         os.makedirs(db_path, exist_ok=True)
+
+        # Create a subfolder for running temporary files
+        running_path = os.path.join(db_path, f"{database_name}_running")
+        os.makedirs(running_path, exist_ok=True)
+
         return f"Database '{database_name}' created."
 
     def switch_database(self, database_name):
@@ -190,22 +226,22 @@ class Database:
         with open(output_path, 'w') as output_file:
             output_file.write('[')
             first_item_written = False
-            current_line = 1  # Line counter
+            current_line = 1
 
             for json_object in stream_read_json(os.path.join(self.db_path, "NoSQL_DB", self.current_database, f"{collection_name}.json")):
-                # Check if the current line is within the specified range
-                if line_start <= current_line < line_end:
-                    if self._matches_condition(json_object, condition):
-                        if first_item_written:
-                            output_file.write(',')
-                        else:
-                            first_item_written = True
-                        projected_json_object = {field: json_object[field] for field in fields}
-                        output_file.write(json.dumps(projected_json_object))
+                if line_start <= current_line < line_end and (not condition or self._matches_condition(json_object, condition)):
+                    if first_item_written:
+                        output_file.write(',')
+                    else:
+                        first_item_written = True
+                    
+                    # Handle case where fields = ['all']
+                    projected_json_object = json_object if fields == ['all'] else {field: json_object[field] for field in fields}
+                    output_file.write(json.dumps(projected_json_object))
 
                 current_line += 1
                 if current_line >= line_end:
-                    break  # Stop processing once the end line is reached
+                    break
 
             output_file.write(']')
 
@@ -380,17 +416,30 @@ class Database:
                 group_key = 'All' if aggregate_over_all else json_object.get(group_by_field)
                 if group_key is not None:
                     if group_key not in grouped_data:
-                        grouped_data[group_key] = {'total': 0, 'count': 0, 'min': float('inf'), 'max': float('-inf')}
+                        grouped_data[group_key] = {'total': 0, 'count': 0, 'min': None, 'max': None}
                     if aggregation_field in json_object:
                         value = json_object[aggregation_field]
+
+                        # Check for numeric values for sum and average
+                        if aggregation_method in ['sum', 'average'] and not isinstance(value, (int, float)):
+                            continue
+
+                        # Update total and count for sum and average
                         if aggregation_method in ['sum', 'average']:
                             grouped_data[group_key]['total'] += value
-                        if aggregation_method in ['average', 'min', 'max', 'count']:
                             grouped_data[group_key]['count'] += 1
+
+                        # Update min and max, allowing string and numeric values
                         if aggregation_method == 'min':
-                            grouped_data[group_key]['min'] = min(grouped_data[group_key]['min'], value)
+                            if grouped_data[group_key]['min'] is None or value < grouped_data[group_key]['min']:
+                                grouped_data[group_key]['min'] = value
                         if aggregation_method == 'max':
-                            grouped_data[group_key]['max'] = max(grouped_data[group_key]['max'], value)
+                            if grouped_data[group_key]['max'] is None or value > grouped_data[group_key]['max']:
+                                grouped_data[group_key]['max'] = value
+
+                        # Update count for count method
+                        if aggregation_method == 'count':
+                            grouped_data[group_key]['count'] += 1
 
         # Preparing detailed results
         detailed_results = []
@@ -407,6 +456,7 @@ class Database:
             detailed_results.append(result)
 
         return detailed_results
+    
     # need to check the size of chunk for stream_read_json in the below three functions
     def sort_data(self, collection_name, sort_field, order):
         if self.current_database is None:
@@ -484,7 +534,12 @@ class Database:
 
 
 class QueryParser:
+
     def parse(self, query_string):
+
+        # Convert the query string to lowercase for case-insensitive processing
+        query_string = query_string.lower()
+        
         # Determine the type of query and call the respective method
         if query_string.startswith('create a new database named'):
             return self.parse_create_database(query_string)
@@ -568,21 +623,21 @@ class QueryParser:
         return {"operation": "show_databases"}
 
     def parse_retrieve_data(self, query_string):
-        # New pattern to include line range
-        pattern = r'Show (.+) of (.+) where (.+) line (\d+)-(\d+);'
+        # Pattern adjusted to make condition and line range optional
+        pattern = r'Show (.+) of (\w+)(?: where (.*?))?(?: line (\d+)-(\d+))?;'
         match = re.match(pattern, query_string)
         if match:
             fields = [field.strip() for field in match.group(1).split(',')]
             collection = match.group(2).strip()
-            condition = match.group(3).strip()
-            line_start = int(match.group(4))
-            line_end = int(match.group(5))
+            condition = match.group(3) if match.group(3) else ""
+            line_start = int(match.group(4)) if match.group(4) else 1
+            line_end = int(match.group(5)) if match.group(5) else float('inf')  # Use a very large number as default end line
             return {
-                "operation": "retrieve_data", 
-                "fields": fields, 
-                "collection": collection, 
+                "operation": "retrieve_data",
+                "fields": fields,
+                "collection": collection,
                 "condition": condition,
-                "line_start": line_start, 
+                "line_start": line_start,
                 "line_end": line_end
             }
         else:
@@ -651,59 +706,3 @@ class QueryParser:
             return {"operation": "update_data", "field": field, "new_value": new_value, "collection": collection, "condition": condition}
         else:
             raise ValueError("Invalid query format for updating data.")
-
-
-
-
-
-
-
-
-
-
-class CLI:
-    def __init__(self, database):
-        self.database = database
-
-    def start(self):
-        # Start the CLI and process commands
-        pass
-
-
-def stream_read_json(file_path, batch_size=1):
-    """
-    Generator function to read multiple JSON objects at a time from a file.
-    Each line in the file should be a separate JSON object.
-
-    :param file_path: Path to the JSON file.
-    :param batch_size: Number of JSON objects to read at a time.
-    """
-    with open(file_path, 'r') as file:
-        batch = []
-        for line in file:
-            batch.append(json.loads(line))
-            if len(batch) == batch_size:
-                yield batch
-                batch = []
-        if batch:  # Yield the last batch if it's not empty
-            yield batch
-
-
-def stream_write_results(file_path, json_objects):
-    """
-    Function to write a batch of JSON objects to a file.
-
-    :param file_path: Path to the JSON file where data will be written.
-    :param json_objects: A list of JSON objects to write.
-    """
-    with open(file_path, 'a') as file:
-        # Writing each JSON object in the list to the file
-        for obj in json_objects:
-            file.write(json.dumps(obj) + '\n')
-
-
-# Example usage
-if __name__ == "__main__":
-    db = Database('/path/to/db')
-    cli = CLI(db)
-    cli.start()
