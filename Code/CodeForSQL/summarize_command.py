@@ -102,9 +102,9 @@ def perform_aggregation(aggregation_data, method):
 def write_results(file_path, results, column_to_summarize, group_by, aggregation_method):
     with open(file_path, 'w', newline='') as file:
         if group_by == 'all':
-            headers = [f"{aggregation_method.upper()}({column_to_summarize})"]
+            headers = [f"{aggregation_method}({column_to_summarize})"]
         else:
-            headers = [group_by, f"{aggregation_method.upper()}({column_to_summarize})"]
+            headers = [group_by, f"{aggregation_method}({column_to_summarize})"]
         writer = csv.DictWriter(file, fieldnames=headers)
         writer.writeheader()
         for key, value in results.items():
