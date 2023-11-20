@@ -1,5 +1,6 @@
-![image](https://github.com/Pasxsenger/Build-our-DBSys/assets/52902668/24be4a81-4809-4dcb-8485-1cc4af52f660)# Build-our-DBSys
+# Build-our-DBSys
 This is the course project of DSCI 551.
+Author: Xuesong Shen & Haoze Zhu
 
 ## Google Doc
 https://docs.google.com/document/d/19oX2cgOgHJJUakujflavoMcYnCBVIXrBk3PaOoyqP6k/edit
