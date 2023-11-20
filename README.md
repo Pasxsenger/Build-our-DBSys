@@ -1,5 +1,5 @@
 # Build-our-DBSys
-This is the course project of DSCI 551.
+This is the course project of DSCI 551.<br>
 Author: Xuesong Shen & Haoze Zhu
 
 ## Google Doc
