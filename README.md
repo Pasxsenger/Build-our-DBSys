@@ -4,11 +4,16 @@ This is the course project of DSCI 551.
 ## Google Doc
 https://docs.google.com/document/d/19oX2cgOgHJJUakujflavoMcYnCBVIXrBk3PaOoyqP6k/edit
 
-## Relational
-### Function Diagram
-![function diagram](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/ds551.png)
+## System Structure
+![system diagram](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/ourDB_Sys_Structure.drawio.png)
+
+## Function Diagram
+![function diagram](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/functions.png)
 https://1drv.ms/u/s!AhfT-JkcYBnml3jXaKHAECIvk3xX?e=exyYEb
 
+
+
+## Relational
 ### Dataset
 #### [NBA games data](https://www.kaggle.com/datasets/nathanlauga/nba-games)
 | File Name    | File Format | File Size |
@@ -20,20 +25,8 @@ https://1drv.ms/u/s!AhfT-JkcYBnml3jXaKHAECIvk3xX?e=exyYEb
 | games_details | csv         |      93.1 MB     |
 
 
-
-#### [IMDB Dataset of 50K Movie Reviews](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews/data)
-| File Name    | File Format | File Size |
-| ------------ | ----------- | --------- |
-| IMDB Dataset | csv         |    66.2 MB       |
-
-
 ## Non-relational
 ### Dataset
-#### [News Category Dataset](https://www.kaggle.com/datasets/rmisra/news-category-dataset)
-| File Name    | File Format | File Size |
-| ------------ | ----------- | --------- |
-| News_Category_Dataset_v3 | json         |    87.3 MB       |
-
 #### [Indonesia's Top E-Commerce Tweets](https://www.kaggle.com/datasets/robertvici/indonesia-top-ecommerce-unicorn-tweets/code)
 | File Name    | File Format | File Size |
 | ------------ | ----------- | --------- |
