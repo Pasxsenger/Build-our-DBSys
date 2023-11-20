@@ -37,9 +37,14 @@ https://1drv.ms/u/s!AhfT-JkcYBnml3jXaKHAECIvk3xX?e=exyYEb
 #### [Indonesia's Top E-Commerce Tweets](https://www.kaggle.com/datasets/robertvici/indonesia-top-ecommerce-unicorn-tweets/code)
 | File Name    | File Format | File Size |
 | ------------ | ----------- | --------- |
-| bliblidotcom | json         |    56.4 MB       |
-| bukalapak | json         |    46.8 MB       |
-| lazadaID | json         |    118.4 MB       |
-| ShopeeID | json         |    233.1 MB       |
-| tokopedia | json         |    29.2 MB       |
+| bliblidotcom_stats | json         |    31.4 MB       |
+| bliblidotcom_tweet | json         |    20.9 MB       |
+| bukalapak_stats | json         |    27.9 MB       |
+| bukalapak_tweet | json         |    17.7 MB       |
+| lazadaID_stats | json         |    72.4 MB       |
+| lazadaID_tweet | json         |    43 MB       |
+| ShopeeID_stats | json         |    145.5 MB       |
+| ShopeeID_tweet | json         |    82 MB       |
+| tokopedia_stats | json         |    17.5 MB       |
+| tokopedia_tweet | json         |    11.1 MB       |
 
