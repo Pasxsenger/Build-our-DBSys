@@ -71,4 +71,31 @@ Example: Drop table teams;
 Format: Tables; <br>
 Example: Tables;
 
+### 1. Retrieving Data (Projection & Filtering)
+Format: Show [column(s)]/[all] of [table] where [condition(s)] [line m-n]; <br>
+Example: Show team_id, city of teams where city = LA line 2-10;
 
+### 2. Connecting Tables (Block-based Nested Loop Join)
+Format: Connect [table1] with [table2] based on [common feature];  <br>
+Example: Connect teams with players based on team_id = team_id;
+
+### 3. Grouping and Aggregation
+Format: Summarize [column] on [column]/[all] from [table] using [aggregation];<br>
+Example: Summarize yearfounded on teams_id from teams using min;<br>
+Aggregation: avg/sum (numeric only); count/min/max
+
+### 4. Sorting Data (External Merge Sort)
+Format: Sort [table] by [column] in [asc/desc] order; <br>
+Example: Sort teams by yearfounded in asc order;
+
+### 5. Inserting Data
+Format: Add [row] to [table]; <br>
+Example: Add John Doe, Guard to players;
+
+### 6. Updating Data
+Format: Change [column] to [new value] for [table] with [condition] ;<br>
+Example: Change position to forward for players with name = John Doe;
+
+### 7. Deleting Data
+Format: Remove row with [condition] from [table];<br>
+Example: Remove row with name = John Doe from players;
