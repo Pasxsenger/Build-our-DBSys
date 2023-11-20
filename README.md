@@ -44,31 +44,31 @@ https://1drv.ms/u/s!AhfT-JkcYBnml3jXaKHAECIvk3xX?e=exyYEb
 ## Query Language
 ### 0. Database and Table
 #### Creating a Database 
-Format: Create a new database named [database name]; 
+Format: Create a new database named [database name]; <br>
 Example: Create a new database named NBA;
 
 #### Using a Specific Database 
-Format: Switch to database [database name]; 
+Format: Switch to database [database name]; <br>
 Example: Switch to database NBA;
 
 #### Deleting a Database 
-Format: Delete database [database name]; 
+Format: Delete database [database name]; <br>
 Example: Delete database NBA; 
 
 #### Showing Databases
-Format: Databases; 
+Format: Databases; <br>
 Example: Databases;
 
 #### Creating a Table 
-Format: Set up a new table named [table name] with columns [column names]; 
+Format: Set up a new table named [table name] with columns [column names]; <br>
 Example: Set up a new table named teams with columns team_id, city, owner;
 
 #### Dropping a Table
-Format: Drop table [table name]; 
+Format: Drop table [table name]; <br>
 Example: Drop table teams;
 
 #### Showing Tables 
-Format: Tables; 
+Format: Tables; <br>
 Example: Tables;
 
 
