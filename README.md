@@ -45,6 +45,7 @@ https://1drv.ms/u/s!AhfT-JkcYBnml3jXaKHAECIvk3xX?e=exyYEb
 ## Query Language
 ### 0. Database and Table
 #### Creating a Database 
+
 Format: Create a new database named [database name]; <br>
 Example: Create a new database named NBA;
 
@@ -61,40 +62,44 @@ Format: Databases; <br>
 Example: Databases;
 
 #### Creating a Table 
-Format: Set up a new table named [table name] with columns [column names]; <br>
+Format: Set up a new table named [table name] with columns [column names];
+Format: Set up a new collection named [collection name] with [json object];
 Example: Set up a new table named teams with columns team_id, city, owner;
+Example: Set up a new collection named teams with {"ID": "1", "Name": "USC"};
+
 
 #### Dropping a Table
-Format: Drop table [table name]; <br>
-Example: Drop table teams;
+Format: Drop table/collection [table/collection name];
+Example: Drop table teams; drop collection teams;
 
 #### Showing Tables 
-Format: Tables; <br>
+Format: Tables;
+Format: collections;
 Example: Tables;
 
 ### 1. Retrieving Data (Projection & Filtering)
-Format: Show [column(s)]/[all] of [table] where [condition(s)] [line m-n]; <br>
+Format: Show [column/field(s)]/[all] of [table/collection] where [condition(s)] [line m-n];
 Example: Show team_id, city of teams where city = LA line 2-10;
 
 ### 2. Connecting Tables (Block-based Nested Loop Join)
-Format: Connect [table1] with [table2] based on [common feature];  <br>
+Format: Connect [table1/collection1] with [table2/collection2] based on [common feature];
 Example: Connect teams with players based on team_id = team_id;
 
 ### 3. Grouping and Aggregation
-Format: Summarize [column] on [column]/[all] from [table] using [aggregation];<br>
-Example: Summarize yearfounded on teams_id from teams using min;<br>
+Format: Summarize [column/field] on [column/field]/[all] from [table/collection] using [aggregation];<br>
+Example: Summarize yearfounded on teams_id from teams using min;
 Aggregation: avg/sum (numeric only); count/min/max
 
 ### 4. Sorting Data (External Merge Sort)
-Format: Sort [table] by [column] in [asc/desc] order; <br>
+Format: Sort [table/collection] by [column/field] in [asc/desc] order;<br>
 Example: Sort teams by yearfounded in asc order;
 
 ### 5. Inserting Data
-Format: Add [row] to [table]; <br>
+Format: Add [row] to [table/collection];<br>
 Example: Add John Doe, Guard to players;
 
 ### 6. Updating Data
-Format: Change [column] to [new value] for [table] with [condition] ;<br>
+Format: Change [column/field] to [new value] for [table] with [condition];<br>
 Example: Change position to forward for players with name = John Doe;
 
 ### 7. Deleting Data
