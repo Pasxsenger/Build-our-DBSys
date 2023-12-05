@@ -136,4 +136,5 @@ To exit the SQL database system, run the command “exit”.
 All the runtime files in the running folders will be deleted at the same time.
 
 To exit ourDB, run the command “exit”.
+
 ![exit system](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/exit_system.png)
