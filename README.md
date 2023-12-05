@@ -78,16 +78,16 @@ Format: collections;
 Example: Tables;
 
 ### 1. Retrieving Data (Projection & Filtering)
-Format: Show [column/field(s)]/[all] of [table/collection] where [condition(s)] [line m-n];
+Format: Show [column/field(s)]/[all] of [table/collection] where [condition(s)] [line m-n];<br>
 Example: Show team_id, city of teams where city = LA line 2-10;
 
 ### 2. Connecting Tables (Block-based Nested Loop Join)
-Format: Connect [table1/collection1] with [table2/collection2] based on [common feature];
+Format: Connect [table1/collection1] with [table2/collection2] based on [common feature];<br>
 Example: Connect teams with players based on team_id = team_id;
 
 ### 3. Grouping and Aggregation
 Format: Summarize [column/field] on [column/field]/[all] from [table/collection] using [aggregation];<br>
-Example: Summarize yearfounded on teams_id from teams using min;
+Example: Summarize yearfounded on teams_id from teams using min;<br>
 Aggregation: avg/sum (numeric only); count/min/max
 
 ### 4. Sorting Data (External Merge Sort)
