@@ -104,12 +104,16 @@ Example: Remove row with name = John Doe from players;
 ## System operation
 
 Change the current path to “ourDB/Code”, then run “python3 main.py”.
+
 ![enter system](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/enter_system.png)
+
 To enter the SQL database system, run the command “sql”;
 
+![choose sql](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/choose_sql.png)
 
 To enter the NoSql database system, run the command “nosql”;
 
+![choose nosql](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/choose_nosql.png)
 
 Run the command “databases;” to see all databases in the database system.
 
@@ -120,28 +124,6 @@ To use the database nba in the SQL databases, run the command “switch to datab
 To show the tables in the database, run the command “tables;”.
 To use the database eco in the NoSQL databases, run the command “switch to database eco;”.
 To show the collections in the database, run the command “collections;”.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
