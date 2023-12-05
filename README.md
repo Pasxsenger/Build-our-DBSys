@@ -2,15 +2,14 @@
 This is the course project of DSCI 551.<br>
 Author: Xuesong Shen & Haoze Zhu
 
-## Google Doc
-https://docs.google.com/document/d/19oX2cgOgHJJUakujflavoMcYnCBVIXrBk3PaOoyqP6k/edit
+
 
 ## System Structure
 ![system diagram](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/ourDB_Sys_Structure.drawio.png)
 
 ## Function Diagram
 ![function diagram](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/functions.png)
-https://1drv.ms/u/s!AhfT-JkcYBnml3jXaKHAECIvk3xX?e=exyYEb
+
 
 
 
