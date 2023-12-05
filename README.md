@@ -117,14 +117,17 @@ To enter the NoSql database system, run the command “nosql”;
 
 Run the command “databases;” to see all databases in the database system.
 
-
-
+![SQL database](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/databases_sql.png)
+![nosql databases](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/databases_nosql.png)
 
 To use the database nba in the SQL databases, run the command “switch to database nba;”.
 To show the tables in the database, run the command “tables;”.
 To use the database eco in the NoSQL databases, run the command “switch to database eco;”.
 To show the collections in the database, run the command “collections;”.
 
+
+![switch SQL database](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/switch_sql_base.png)
+![switch nosql databases](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/switch_nosql_base.png)
 
 
 After switching to a specific database, one can use other query operations or CRUD commands on that database.
@@ -133,3 +136,4 @@ To exit the SQL database system, run the command “exit”.
 All the runtime files in the running folders will be deleted at the same time.
 
 To exit ourDB, run the command “exit”.
+![exit system](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/exit_system.png)
