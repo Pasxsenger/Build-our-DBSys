@@ -62,9 +62,9 @@ Format: Databases; <br>
 Example: Databases;
 
 #### Creating a Table 
-Format: Set up a new table named [table name] with columns [column names];
-Format: Set up a new collection named [collection name] with [json object];
-Example: Set up a new table named teams with columns team_id, city, owner;
+Format: Set up a new table named [table name] with columns [column names];<br>
+Format: Set up a new collection named [collection name] with [json object];<br>
+Example: Set up a new table named teams with columns team_id, city, owner;<br>
 Example: Set up a new collection named teams with {"ID": "1", "Name": "USC"};
 
 
