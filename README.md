@@ -100,3 +100,54 @@ Example: Change position to forward for players with name = John Doe;
 ### 7. Deleting Data
 Format: Remove row with [condition] from [table];<br>
 Example: Remove row with name = John Doe from players;
+
+## System operation
+
+Change the current path to “ourDB/Code”, then run “python3 main.py”.
+![enter system](https://github.com/Pasxsenger/Build-our-DBSys/blob/main/Pictures/enter_system.png)
+To enter the SQL database system, run the command “sql”;
+
+
+To enter the NoSql database system, run the command “nosql”;
+
+
+Run the command “databases;” to see all databases in the database system.
+
+
+
+
+To use the database nba in the SQL databases, run the command “switch to database nba;”.
+To show the tables in the database, run the command “tables;”.
+To use the database eco in the NoSQL databases, run the command “switch to database eco;”.
+To show the collections in the database, run the command “collections;”.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+After switching to a specific database, one can use other query operations or CRUD commands on that database.
+
+To exit the SQL database system, run the command “exit”.
+All the runtime files in the running folders will be deleted at the same time.
+
+To exit ourDB, run the command “exit”.
