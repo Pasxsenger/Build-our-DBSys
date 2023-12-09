@@ -1,3 +1,3 @@
-Project Proposal
-Midterm Progress Report
-Final Report
+Project Proposal<br>
+Midterm Progress Report<br>
+Final Report<br>
